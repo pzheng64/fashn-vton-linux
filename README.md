@@ -12,10 +12,6 @@ by [FASHN AI](https://fashn.ai)
 
 Virtual try-on model that generates photorealistic images directly in pixel space without requiring segmentation masks.
 
-<p align="center">
-  <img src="https://static.fashn.ai/repositories/fashn-vton-v15/results/hero_collage.webp" alt="FASHN VTON v1.5 examples" width="900">
-</p>
-
 This repo contains minimal inference code to run virtual try-on with the FASHN VTON v1.5 model weights. Given a person image and a garment image, the model generates a photorealistic image of the person wearing the garment. Supports both model photos and flat-lay product shots as garment inputs.
 
 ---
