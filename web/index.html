@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FASHN VTON</title>
+  <style>
+    :root {
+      --bg: #efe8df;
+      --paper: #f7f3ed;
+      --ink: #1c1915;
+      --muted: #6f675e;
+      --line: #d8cfc4;
+      --accent: #8d2f24;
+      --danger: #8d2f24;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(1200px 500px at 10% -10%, #f8f4ee 0%, transparent 55%),
+        var(--bg);
+      font-family: "Segoe UI", system-ui, sans-serif;
+    }
+    main {
+      width: min(1080px, calc(100% - 2rem));
+      margin: 0 auto;
+      padding: 2.2rem 0 3rem;
+    }
+    header { margin-bottom: 1.6rem; }
+    h1 {
+      margin: 0;
+      font-family: Palatino, "Palatino Linotype", Georgia, serif;
+      font-size: clamp(2.2rem, 4vw, 3.4rem);
+      font-weight: 500;
+      letter-spacing: -0.03em;
+    }
+    .lede { margin: 0.4rem 0 0; max-width: 40rem; color: var(--muted); line-height: 1.45; }
+    .status {
+      margin-top: 0.9rem;
+      min-height: 1.3rem;
+      font-size: 0.92rem;
+    }
+    .status.error { color: var(--danger); }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    label.drop {
+      text-transform: none;
+      letter-spacing: 0;
+      font-size: 1rem;
+      color: var(--ink);
+    }
+    .drop {
+      min-height: 180px;
+      border: 1px dashed var(--line);
+      background: var(--paper);
+      cursor: pointer;
+    }
+    .drop.filled {
+      border: none;
+      background: transparent;
+      min-height: 0;
+    }
+    .drop.over { border-color: var(--ink); }
+    .drop img {
+      display: block;
+      width: 100%;
+      height: 440px;
+      object-fit: contain;
+      background: #ebe4db;
+      border: 1px solid var(--line);
+    }
+    .drop .meta {
+      padding: 0.55rem 0.1rem 0;
+      color: var(--ink);
+    }
+    .drop:not(.filled) .meta { padding: 1rem; }
+    .drop strong {
+      display: block;
+      font-size: 0.78rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .drop span {
+      display: block;
+      margin-top: 0.2rem;
+      font-size: 0.9rem;
+      letter-spacing: 0;
+      text-transform: none;
+      opacity: 0.9;
+    }
+    .drop input { display: none; }
+    form { margin-top: 1rem; }
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.75rem;
+      margin-top: 0.25rem;
+    }
+    label { display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.78rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+    input, select, button { font: inherit; color: inherit; }
+    input, select {
+      text-transform: none;
+      letter-spacing: 0;
+      font-size: 1rem;
+      padding: 0.65rem 0.7rem;
+      border: 1px solid var(--line);
+      background: var(--paper);
+    }
+    .check {
+      flex-direction: row;
+      align-items: center;
+      text-transform: none;
+      letter-spacing: 0;
+      font-size: 0.95rem;
+      color: var(--ink);
+      gap: 0.55rem;
+    }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+      align-items: center;
+      margin-top: 1rem;
+    }
+    button {
+      border: 1px solid var(--ink);
+      background: transparent;
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+    }
+    button.primary {
+      background: var(--ink);
+      color: var(--paper);
+      border-color: var(--ink);
+    }
+    button:disabled { opacity: 0.45; cursor: wait; }
+    .hint { color: var(--muted); font-size: 0.9rem; }
+    .results { margin-top: 1.6rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
+    .results figure { margin: 0; background: var(--paper); border: 1px solid var(--line); }
+    .results img { display: block; width: 100%; height: auto; }
+    .results figcaption { display: flex; justify-content: space-between; gap: 0.5rem; padding: 0.6rem 0.75rem; font-size: 0.9rem; }
+    .results a { color: var(--accent); }
+    @media (max-width: 800px) {
+      .grid, .controls { grid-template-columns: 1fr; }
+      .drop img { height: 320px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Try-on</h1>
+      <p class="lede">Upload a person and a garment. The model generates a photo of the person wearing it. Tops, bottoms, and one-pieces are supported, including flat-lay product shots.</p>
+      <p id="status" class="status">Loading model…</p>
+    </header>
+
+    <div class="grid">
+      <label class="drop" id="person-drop">
+        <img id="person-preview" alt="" hidden>
+        <div class="meta">
+          <strong>Person</strong>
+          <span id="person-caption">Photo of the person to dress</span>
+        </div>
+        <input id="person" type="file" accept="image/*">
+      </label>
+      <label class="drop" id="garment-drop">
+        <img id="garment-preview" alt="" hidden>
+        <div class="meta">
+          <strong>Garment</strong>
+          <span id="garment-caption">Model photo or flat-lay product shot</span>
+        </div>
+        <input id="garment" type="file" accept="image/*">
+      </label>
+    </div>
+
+    <form id="form">
+      <div class="controls">
+        <label>
+          Category
+          <select id="category" name="category">
+            <option value="tops">Tops — shirts, jackets</option>
+            <option value="bottoms">Bottoms — pants, skirts</option>
+            <option value="one-pieces">One-pieces — dresses, jumpsuits</option>
+          </select>
+        </label>
+        <label>
+          Garment photo
+          <select id="garment-photo-type" name="garment_photo_type">
+            <option value="model">Model — worn by a person</option>
+            <option value="flat-lay">Flat-lay — product shot</option>
+          </select>
+        </label>
+        <label>
+          Steps
+          <input id="steps" name="num_timesteps" type="number" min="1" max="50" value="30">
+        </label>
+        <label>
+          Samples
+          <input id="samples" name="num_samples" type="number" min="1" max="4" value="1">
+        </label>
+        <label>
+          Guidance
+          <input id="guidance" name="guidance_scale" type="number" min="1" max="5" step="0.1" value="1.5">
+        </label>
+        <label>
+          Seed
+          <input id="seed" name="seed" type="number" min="0" max="2147483647" value="42">
+        </label>
+        <label class="check">
+          <input id="segmentation-free" type="checkbox" checked>
+          Segmentation-free
+        </label>
+      </div>
+      <div class="actions">
+        <button class="primary" id="generate" type="submit" disabled>Generate</button>
+        <button id="samples-btn" type="button">Use sample photos</button>
+        <span class="hint" id="hint">20 steps is faster, 30 is balanced, 50 is higher quality.</span>
+      </div>
+    </form>
+
+    <p id="message" class="status" role="alert"></p>
+    <section id="results" class="results" aria-live="polite"></section>
+  </main>
+  <script>
+    const files = { person: null, garment: null };
+    const statusEl = document.getElementById("status");
+    const messageEl = document.getElementById("message");
+    const generateBtn = document.getElementById("generate");
+    const resultsEl = document.getElementById("results");
+    let ready = false;
+    let busy = false;
+    let timer = null;
+
+    function setMessage(text, isError) {
+      messageEl.textContent = text || "";
+      messageEl.className = isError ? "status error" : "status";
+    }
+
+    function wireDrop(name) {
+      const drop = document.getElementById(name + "-drop");
+      const input = document.getElementById(name);
+      const preview = document.getElementById(name + "-preview");
+      const caption = document.getElementById(name + "-caption");
+      function show(file) {
+        files[name] = file;
+        preview.src = URL.createObjectURL(file);
+        preview.hidden = false;
+        preview.alt = file.name;
+        caption.textContent = file.name;
+        drop.classList.add("filled");
+      }
+      input.addEventListener("change", () => {
+        if (input.files[0]) show(input.files[0]);
+      });
+      ["dragenter", "dragover"].forEach((eventName) => {
+        drop.addEventListener(eventName, (event) => {
+          event.preventDefault();
+          drop.classList.add("over");
+        });
+      });
+      ["dragleave", "drop"].forEach((eventName) => {
+        drop.addEventListener(eventName, (event) => {
+          event.preventDefault();
+          drop.classList.remove("over");
+        });
+      });
+      drop.addEventListener("drop", (event) => {
+        const file = event.dataTransfer.files[0];
+        if (file) show(file);
+      });
+      return show;
+    }
+
+    const showPerson = wireDrop("person");
+    const showGarment = wireDrop("garment");
+
+    async function loadSamples() {
+      setMessage("");
+      const pairs = [
+        ["person", "/samples/model.webp", "model.webp", showPerson],
+        ["garment", "/samples/garment.webp", "garment.webp", showGarment],
+      ];
+      for (const [, url, name, show] of pairs) {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("Sample photos are missing.");
+        const blob = await response.blob();
+        show(new File([blob], name, { type: blob.type || "image/webp" }));
+      }
+    }
+
+    document.getElementById("samples-btn").addEventListener("click", () => {
+      loadSamples().catch((error) => setMessage(error.message, true));
+    });
+
+    async function refreshStatus() {
+      try {
+        const response = await fetch("/api/status");
+        const data = await response.json();
+        ready = Boolean(data.ready);
+        if (data.error) {
+          statusEl.textContent = data.error;
+          statusEl.className = "status error";
+        } else if (data.loading) {
+          statusEl.textContent = "Loading model…";
+          statusEl.className = "status";
+        } else if (data.busy && !busy) {
+          statusEl.textContent = "Generating another image. This page will unlock when it finishes.";
+          statusEl.className = "status";
+        } else if (!busy) {
+          const device = (data.device || "").includes("cpu") ? "CPU" : data.device;
+          statusEl.textContent = device === "CPU"
+            ? "Ready on CPU. A full run can take a long time."
+            : "Ready on " + device + ".";
+          statusEl.className = "status";
+        }
+        if (data.busy) generateBtn.disabled = true;
+        generateBtn.disabled = !ready || busy;
+      } catch (error) {
+        statusEl.textContent = "Cannot reach the server.";
+        statusEl.className = "status error";
+      }
+    }
+
+    refreshStatus();
+    setInterval(refreshStatus, 2000);
+
+    document.getElementById("form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      setMessage("");
+      if (!files.person || !files.garment) {
+        setMessage("Add both a person photo and a garment photo.", true);
+        return;
+      }
+      const body = new FormData();
+      body.append("person", files.person);
+      body.append("garment", files.garment);
+      body.append("category", document.getElementById("category").value);
+      body.append("garment_photo_type", document.getElementById("garment-photo-type").value);
+      body.append("num_timesteps", document.getElementById("steps").value);
+      body.append("num_samples", document.getElementById("samples").value);
+      body.append("guidance_scale", document.getElementById("guidance").value);
+      body.append("seed", document.getElementById("seed").value);
+      body.append("segmentation_free", document.getElementById("segmentation-free").checked ? "true" : "false");
+
+      busy = true;
+      generateBtn.disabled = true;
+      resultsEl.replaceChildren();
+      const started = Date.now();
+      setMessage("Generating… 0s");
+      timer = setInterval(() => {
+        setMessage("Generating… " + Math.floor((Date.now() - started) / 1000) + "s");
+      }, 1000);
+
+      try {
+        const response = await fetch("/api/generate", { method: "POST", body });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Generation failed.");
+        resultsEl.replaceChildren();
+        data.images.forEach((src, index) => {
+          const figure = document.createElement("figure");
+          const image = document.createElement("img");
+          image.src = src;
+          image.alt = "Generated try-on " + (index + 1);
+          const caption = document.createElement("figcaption");
+          const label = document.createElement("span");
+          label.textContent = data.images.length > 1 ? "Result " + (index + 1) : "Result";
+          const link = document.createElement("a");
+          link.href = src;
+          link.download = "tryon-" + String(index + 1).padStart(2, "0") + ".png";
+          link.textContent = "Download";
+          caption.append(label, link);
+          figure.append(image, caption);
+          resultsEl.append(figure);
+        });
+        setMessage("");
+      } catch (error) {
+        setMessage(error.message, true);
+      } finally {
+        clearInterval(timer);
+        busy = false;
+        generateBtn.disabled = !ready;
+      }
+    });
+  </script>
+</body>
+</html>
