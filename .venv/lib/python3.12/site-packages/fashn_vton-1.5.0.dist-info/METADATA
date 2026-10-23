@@ -1,0 +1,41 @@
+Metadata-Version: 2.4
+Name: fashn-vton
+Version: 1.5.0
+Summary: FASHN VTON v1.5
+Author-email: FASHN AI <dan@fashn.ai>
+License: Apache-2.0
+Project-URL: Homepage, https://github.com/fashn-AI/fashn-vton-1.5
+Project-URL: Documentation, https://github.com/fashn-AI/fashn-vton-1.5#readme
+Project-URL: Repository, https://github.com/fashn-AI/fashn-vton-1.5
+Project-URL: Issues, https://github.com/fashn-AI/fashn-vton-1.5/issues
+Keywords: virtual try-on,diffusion models,fashion,AI,deep learning
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Classifier: Topic :: Scientific/Engineering :: Image Processing
+Requires-Python: >=3.10
+License-File: LICENSE
+Requires-Dist: torch>=2.0.0
+Requires-Dist: torchvision>=0.15.0
+Requires-Dist: safetensors>=0.3.0
+Requires-Dist: huggingface_hub>=0.20.0
+Requires-Dist: pillow>=9.0.0
+Requires-Dist: numpy>=1.21.0
+Requires-Dist: opencv-python>=4.5.0
+Requires-Dist: tqdm>=4.65.0
+Requires-Dist: einops>=0.6.0
+Requires-Dist: onnxruntime-gpu>=1.14.0
+Requires-Dist: matplotlib>=3.5.0
+Requires-Dist: fashn-human-parser>=0.1.1
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0.0; extra == "dev"
+Requires-Dist: black>=23.0.0; extra == "dev"
+Requires-Dist: ruff>=0.0.270; extra == "dev"
+Dynamic: license-file
